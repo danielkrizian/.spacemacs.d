@@ -1,0 +1,53 @@
+* Install Emacs and Spacemacs
+
+#+BEGIN_SRC shell
+# emacs
+apt-get build-dep emacs25
+wget -P /tmp https://ftp.gnu.org/pub/gnu/emacs/emacs-26.3.tar.gz
+tar -zxvf /tmp/emacs-26.3.tar.gz -C /tmp
+cd /tmp/emacs-26.3
+./configure --with-cairo
+make
+make install
+
+# emacs 28.0.x
+add-apt-repository ppa:ubuntu-elisp/ppa      # https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa
+apt-get update
+apt-get install emacs-snapshot
+
+# emacs 28.0.x from source
+mkdir -p ~/src & git -C ~/src clone --depth 1 https://github.com/mirrors/emacs.git & cd ~/src/emacs
+git reset --hard && git clean -xdf
+./configure --with-xft --with-x-toolkit=lucid --with-cairo
+make bootstrap
+make
+make install
+
+# spacemacs prerequisites
+# set your terminal (not shell!) so that TERM=xterm-256color
+update-locale LANG=en_GB.utf8
+
+# spacemacs
+git clone -b develop https://github.com/syl20bnr/spacemacs ~/.emacs.d
+# echo 'export SPACEMACSDIR=~/proj/dotfiles/.spacemacs.d' >>  ~/.bashrc
+
+# unicode fonts
+apt install ttf-unifont                              # so that unicode icons display correctly in powerline (test after: SPC SPC)
+fc-cache -fv
+
+# font: Adobe Source Code Pro
+
+mkdir -p /usr/share/fonts/adobe-fonts/source-code-pro     # use ~/.fonts/ for local install
+git clone https://github.com/adobe-fonts/source-code-pro.git /usr/share/fonts/adobe-fonts/source-code-pro
+# find /usr/share/fonts/ -iname '*.ttf' -exec echo \{\} \;
+fc-cache -f -v /usr/share/fonts/adobe-fonts/source-code-pro
+
+git -C /tmp clone https://github.com/adobe-fonts/source-code-pro.git --depth=1
+find /tmp/source-code-pro \( -name "$prefix*.[ot]tf" -or -name "$prefix*.pcf.gz" \) -type f -print0 | xargs -0 -n1 -I % cp "%" "$HOME/.local/share/fonts/"
+fc-cache -fv "$HOME/.local/share/fonts"
+
+# Source Code Pro For Powerline
+# git -C /tmp clone https://github.com/powerline/fonts.git --depth=1
+# /tmp/fonts/install.sh                                                                                          # there is /tmp/fonts/uninstall.sh
+
+#+END_SRC

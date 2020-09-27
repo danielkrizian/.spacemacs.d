@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: q
+# key: q
+# --
+#+begin_src q
+$0
+#+end_src
