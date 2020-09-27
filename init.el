@@ -538,6 +538,8 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  (setq custom-file "~/.spacemacs.d/custom.el")
+  (when (file-exists-p custom-file) (load-file custom-file))
   )
 
 (defun dotspacemacs/user-load ()
@@ -556,7 +558,6 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
   (global-hl-line-mode t)               ; highlight line at cursor
   (global-visual-line-mode t)           ; word wrap; jk navigate by visual line, not logical line
-  (set-face-background hl-line-face "black")
   (setq restart-emacs-restore-frames t
         restart-emacs-with-tty-frames-p t
         ;; desktop-save-mode t
@@ -664,27 +665,3 @@ you should place your code here."
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(evil-want-Y-yank-to-eol nil)
- '(safe-local-variable-values
-   '((org-src-preserve-indentation . t)
-     (encoding . utf-8)
-     (javascript-backend . tide)
-     (javascript-backend . tern)
-     (javascript-backend . lsp))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-)
