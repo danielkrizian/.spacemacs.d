@@ -64,22 +64,31 @@ Each entry is either:
     :mode "\\.[kq]\\'"
     :config
     (progn
+      (add-hook 'q-mode-hook (lambda () (setq comment-column 51)))
+      (defun q-send-string-i (string) (interactive "sSend string:") (require'q-mode) (q-send-string string))
+      (define-key q-mode-map (kbd "\C-\\") '(lambda () (interactive) (q-send-string "\\")))
+      (defun q-send-string-time (string)    ;; see add-function and advice-add; https://emacs.stackexchange.com/questions/12704/swap-default-behavior-of-command-with-c-u-behavior
+        "prepends string with '\t:1000' and q-send-string.
+         C-u will choose different (N)umber of repetitions")
+      (defun q-send-string-show (string)
+        "prepends with 'show'")
+      ;; (q-send-string (format "\\l %s" (buffer-file-name)))
       (spacemacs/set-leader-keys-for-major-mode 'q-mode
+        "i" 'q-send-string-i
         "," 'q-eval-line
-        "a" 'q-eval-line-and-advance
+        "RET" 'q-eval-line-and-advance
         "s" 'q-eval-symbol-at-point
         "f" 'q-eval-function
         "r" 'q-eval-region
         "b" 'q-eval-buffer
-        "l" 'q-load-file
-        "RET" 'q-activate-buffer
+        "B" 'q-load-file
+        "a" 'q-activate-buffer
         "TAB" 'q-show-q-buffer
         "\\\\" 'q-kill-q-buffer
         "u"  'q-customize
         "//" 'comment-line
         "/ RET" 'comment-or-uncomment-region)
       ;; (add-hook 'q-mode-hook (lambda () (setq fill-column 300)))
-      (add-hook 'q-mode-hook (lambda () (setq comment-column 51)))
       ))
   (use-package column-enforce-mode
     :config

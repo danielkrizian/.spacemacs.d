@@ -47,6 +47,7 @@ This function should only modify configuration layer settings."
      html
      pdf
      helm
+     imenu-list
      ;; themes-megapack
      (cmake :variables
             cmake-enable-cmake-ide-support t)
@@ -595,6 +596,10 @@ you should place your code here."
       "dj" 'gud-down
       "du" 'gud-until
       ))
+
+  ;; ----------- movement ---------------------------------------------------------
+  (global-set-key (kbd "<mouse-7>") '(lambda ()(interactive)(scroll-left 4)))
+  (global-set-key (kbd "<mouse-6>") '(lambda ()(interactive)(scroll-right 4)))
   ;; -------------- tramp ----------------------------------------------------------
   (setq tramp-default-method "ssh")
   ;; -------------- projectile -------------------------------------------------------
