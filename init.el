@@ -596,7 +596,8 @@ you should place your code here."
       "dj" 'gud-down
       "du" 'gud-until
       ))
-
+  ;; -------------- helm ----------------------------------------------------------
+  (setq helm-candidate-number-limit 300)
   ;; ----------- movement ---------------------------------------------------------
   (global-set-key (kbd "<mouse-7>") '(lambda ()(interactive)(scroll-left 4)))
   (global-set-key (kbd "<mouse-6>") '(lambda ()(interactive)(scroll-right 4)))
