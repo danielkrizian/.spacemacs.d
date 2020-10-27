@@ -35,6 +35,7 @@ This function should only modify configuration layer settings."
      (spacemacs-layouts :variables
                         spacemacs-layouts-restrict-spc-tab t
                         persp-autokill-buffer-on-remove 'kill-weak) ; =SPC l x= kills layout buffers not in any other layout exc. default
+     spacemacs-purpose
      python
      (c-c++ :variables
             c-c++-enable-clang-support t
@@ -56,6 +57,7 @@ This function should only modify configuration layer settings."
      git
      github
      version-control
+     debug
      markdown
      (latex :variables
             latex-enable-auto-fill t
@@ -122,7 +124,7 @@ This function should only modify configuration layer settings."
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(smartparens)
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.

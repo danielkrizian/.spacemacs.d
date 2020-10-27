@@ -66,13 +66,13 @@ Each entry is either:
     (progn
       (add-hook 'q-mode-hook (lambda () (setq comment-column 51)))
       (defun q-send-string-i (string) (interactive "sSend string:") (require'q-mode) (q-send-string string))
-      (define-key q-mode-map (kbd "\C-\\") '(lambda () (interactive) (q-send-string "\\")))
       (defun q-send-string-time (string)    ;; see add-function and advice-add; https://emacs.stackexchange.com/questions/12704/swap-default-behavior-of-command-with-c-u-behavior
         "prepends string with '\t:1000' and q-send-string.
          C-u will choose different (N)umber of repetitions")
       (defun q-send-string-show (string)
         "prepends with 'show'")
       ;; (q-send-string (format "\\l %s" (buffer-file-name)))
+      (define-key q-mode-map (kbd "\C-\\") '(lambda () (interactive) (q-send-string "\\")))
       (spacemacs/set-leader-keys-for-major-mode 'q-mode
         "i" 'q-send-string-i
         "," 'q-eval-line
