@@ -62,6 +62,7 @@ Each entry is either:
   (use-package q-mode
     :defer t
     :mode "\\.[kq]\\'"
+    :init (spacemacs/register-repl 'q-mode 'q "q") ; make q REPL available via =SPC a '=
     :config
     (progn
       (add-hook 'q-mode-hook (lambda () (setq comment-column 51)))
