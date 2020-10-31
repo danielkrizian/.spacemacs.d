@@ -599,7 +599,9 @@ you should place your code here."
       "du" 'gud-until
       ))
   ;; -------------- helm ----------------------------------------------------------
-  (setq helm-candidate-number-limit 300)
+  (setq helm-candidate-number-limit 300
+        history-delete-duplicates t     ; here until the var is available in helm layer
+        history-length 10)              ; ditto ^; details: https://github.com/syl20bnr/spacemacs/issues/13564#issuecomment-625435391
   ;; ----------- movement ---------------------------------------------------------
   (global-set-key (kbd "<mouse-7>") '(lambda ()(interactive)(scroll-left 4)))
   (global-set-key (kbd "<mouse-6>") '(lambda ()(interactive)(scroll-right 4)))
