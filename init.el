@@ -608,7 +608,27 @@ you should place your code here."
   ;; -------------- tramp ----------------------------------------------------------
   (setq tramp-default-method "ssh")
   ;; -------------- projectile -------------------------------------------------------
- (setq projectile-project-search-path '("~/proj/"))
+  (setq projectile-project-search-path '("~/proj/"))
+
+  (defun projectile-compile--double-prefix-means-run-comint (func &optional args) ; https://github.com/bbatsov/projectile/issues/891
+    "allow running compilation interactively when multiple prefixes are given.
+(C-u C-u) runs default compilation command in interactive compilation buffer.
+(C-u C-u C-u) prompts for command and then runs it in an interactive compilation buffer."
+    (let ((prefix current-prefix-arg))
+      (if (and (consp prefix)
+               (setq prefix (car prefix))
+               (>= prefix 16))
+          (cl-letf* (((symbol-function 'actual-compile)
+                      (symbol-function 'compile))
+                     ((symbol-function 'compile)
+                      (lambda (command &optional comint)
+                        (actual-compile command t))))
+            (funcall func (if (eq prefix 16) nil '(4))))
+        (funcall func prefix))))
+
+  (advice-add 'projectile-run-project     :around #'projectile-compile--double-prefix-means-run-comint)
+  (advice-add 'projectile-compile-project :around #'projectile-compile--double-prefix-means-run-comint)
+  (advice-add 'projectile-test-project    :around #'projectile-compile--double-prefix-means-run-comint)
   ;; -------------- org-mode -------------------------------------------------------
   (with-eval-after-load 'org
     (require 'org-inlinetask)
