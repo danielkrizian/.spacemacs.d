@@ -74,9 +74,13 @@
 ;; The following commands are available to interact with an inferior
 ;; q[con] process/buffer.  `C-c C-l' sends a single line, `C-c C-f'
 ;; sends the surrounding function, `C-c C-r' sends the selected region
-;; and `C-c C-b' sends the whole buffer.  If the source file exists on
-;; the same machine as the q process, `C-c M-l' can be used to load
-;; the file associated with the active buffer.
+;; and `C-c C-b' sends the whole buffer. If prefixed with `C-u C-u',
+;; or pressing `C-c M-j' `C-c M-f' `C-c M-r' respectively, will also
+;; switch point to the active q process buffer for direct interaction.
+
+;; If the source file exists on the same machine as the q process,
+;; `C-c M-l' can be used to load the file associated with the active
+;; buffer.
 
 ;; `M-x customize-group' can be used to customize the `q' group.
 ;; Specifically, the `q-program' and `q-qcon-program' variables can be
@@ -258,7 +262,6 @@ started on a remoate machine.  The optional ARGS argument
 qspecifies the command line args to use when executing q; the
 default ARGS are obtained from the q-init customization
 variables.
-
 In interactive use, a prefix argument directs this command
 to read the command line arguments from the minibuffer."
   (interactive (let* ((args (q-default-args))
@@ -298,7 +301,6 @@ to read the command line arguments from the minibuffer."
 Optional argument ARGS specifies the command line args to use
 when executing qcon; the default ARGS are obtained from the
 `q-host' and `q-init-port' customization variables.
-
 In interactive use, a prefix argument directs this command
 to read the command line arguments from the minibuffer."
   (interactive (let* ((args (q-qcon-default-args)))
@@ -361,20 +363,22 @@ This marks the PROCESS with a MESSAGE, at a particular time point."
       (with-current-buffer (get-buffer q-active-buffer)
         (goto-char (point-max))
         (insert-before-markers (concat msg "\n")))
-      (comint-simple-send (get-buffer-process q-active-buffer) msg))))
+      (comint-simple-send (get-buffer-process q-active-buffer) msg)))
+  (if (equal current-prefix-arg '(16)) (q-show-q-buffer)))
 
 (defun q-eval-region (start end)
   "Send the region between START and END to the inferior q[con] process."
   (interactive "r")
-  (q-send-string (q-strip (buffer-substring start end))))
+  (q-send-string (q-strip (buffer-substring start end)))
+  (setq deactivate-mark t))
 
 (defun q-eval-line ()
   "Send the current line to the inferior q[con] process."
   (interactive)
   (q-eval-region (point-at-bol) (point-at-eol)))
 
-(defun q-eval-line-and-advance ()
-  "Send the current line to the inferior q[con] process and advance the cursor to next line."
+(defun q-eval-line-and-step ()
+  "Send the current line to the inferior q[con] process and step to the next line."
   (interactive)
   (q-eval-line)
   (forward-line))
@@ -382,7 +386,6 @@ This marks the PROCESS with a MESSAGE, at a particular time point."
 (defun q-eval-symbol-at-point ()
   "Evaluate what's assigned to the variable on which the cursor/point currently sits."
   (interactive)
-  (require 'thingatpt)
   (let ((symbol (thing-at-point 'symbol)))
     (q-send-string symbol)))
 
@@ -392,11 +395,11 @@ This marks the PROCESS with a MESSAGE, at a particular time point."
   (q-eval-region (point-min) (point-max)))
 
 (defvar q-function-regex
-  "\\_<\\([.]?[a-zA-Z]\\(?:\\s_\\|\\w\\)*\\s *\\):\\s *{"
+  "\\_<\\([.]?[a-zA-Z]\\(?:\\s_\\|\\w\\|_\\)*\\s *\\):\\s *{"
   "Regular expression used to find function declarations.")
 
 (defvar q-variable-regex
-  "\\_<\\([.]?[a-zA-Z]\\(?:\\s_\\|\\w\\)*\\s *\\)[-.~=!@#$%^&*_+|,<>?]?::?"
+    "\\_<\\([.]?[a-zA-Z]\\(?:\\s_\\|\\w\\|_\\)*\\s *\\)[-.~=!@#$%^&*_+|,<>?]?::?"
   "Regular expression used to find variable declarations.")
 
 (defun q-eval-function ()
@@ -408,6 +411,11 @@ This marks the PROCESS with a MESSAGE, at a particular time point."
           (end   (re-search-forward ":")) ; find end of function name
           (fun   (thing-at-point 'sexp))) ; find function body
       (q-send-string (q-strip (concat (buffer-substring start end) fun))))))
+
+(defun q-and-go (fun) (let ((current-prefix-arg '(16))) (call-interactively fun)))
+(defun q-eval-line-and-go () (interactive) (q-and-go 'q-eval-line))
+(defun q-eval-function-and-go () (interactive) (q-and-go 'q-eval-function))
+(defun q-eval-region-and-go () (interactive) (q-and-go 'q-eval-region))
 
 (defun q-load-file()
   "Load current buffer's file into the inferior q[con] process after saving."
@@ -427,9 +435,13 @@ This marks the PROCESS with a MESSAGE, at a particular time point."
 (defvar q-mode-map
   (let ((q-mode-map (make-sparse-keymap)))
     (define-key q-mode-map "\C-c\C-l"    'q-eval-line)
-    (define-key q-mode-map (kbd "<C-return>") 'q-eval-line-and-advance)
+    (define-key q-mode-map "\C-c\C-j"    'q-eval-line)
+    (define-key q-mode-map "\C-c\M-j"    'q-eval-line-and-go)
+    (define-key q-mode-map (kbd "<C-return>") 'q-eval-line-and-step)
     (define-key q-mode-map "\C-c\C-f"    'q-eval-function)
+    (define-key q-mode-map "\C-c\M-f"    'q-eval-function-and-go)
     (define-key q-mode-map "\C-c\C-r"    'q-eval-region)
+    (define-key q-mode-map "\C-c\M-r"    'q-eval-region-and-go)
     (define-key q-mode-map "\C-c\C-b"    'q-eval-buffer)
     (define-key q-mode-map "\C-c\M-l"    'q-load-file)
     (define-key q-mode-map (kbd "C-c M-RET") 'q-activate-buffer)
@@ -444,11 +456,15 @@ This marks the PROCESS with a MESSAGE, at a particular time point."
 (easy-menu-define q-menu q-mode-map
   "Menubar for q script commands"
   '("Q"
-    ["Eval Line"      q-eval-line t]
-    ["Eval Function"  q-eval-function t]
-    ["Eval Region"    q-eval-region t]
-    ["Eval Buffer"    q-eval-buffer t]
-    ["Load File"      q-load-file t]
+    ["Eval Line"             q-eval-line t]
+    ["Eval Line and Step"    q-eval-line-and-step t]
+    ["Eval Line and Go"      q-eval-line-and-go t]
+    ["Eval Function"         q-eval-function t]
+    ["Eval Function and Go"  q-eval-function-and-go t]
+    ["Eval Region"           q-eval-region t]
+    ["Eval Region and Go"    q-eval-region-and-go t]
+    ["Eval Buffer"           q-eval-buffer t]
+    ["Load File"             q-load-file t]
     "---"
     ["Comment Region" comment-region t]
     "---"
@@ -531,7 +547,7 @@ This marks the PROCESS with a MESSAGE, at a particular time point."
            '("\\(`\\_<[gpsu]\\)#" 1 font-lock-type-face nil) ; attributes
            '("^'.*?$" 0 font-lock-warning-face nil)   ; error
            '("[; ]\\('`\\w*\\)" 1 font-lock-warning-face nil) ; signal
-           '("`\\(?:\\(?:\\w\\|[.]\\)\\(?:\\w\\|\\s_\\)*\\)?" . font-lock-constant-face) ; symbols
+           '("`\\(?:\\(?:\\w\\|[.]\\)\\(?:\\s_\\|\\w\\|_\\)*\\)?" . font-lock-constant-face) ; symbols
            '("\\b[0-2]:" . font-lock-preprocessor-face) ; IO/IPC
            (list q-type-words 1 font-lock-type-face nil) ; `minute`year
            (cons q-keywords  'font-lock-keyword-face)   ; select from
@@ -577,6 +593,7 @@ This marks the PROCESS with a MESSAGE, at a particular time point."
     (modify-syntax-entry ?\n ">  " q-mode-syntax-table) ; comments are ended by a new line
     (modify-syntax-entry ?\r ">  " q-mode-syntax-table) ; comments are ended by a new line
     (modify-syntax-entry ?\. "_  " q-mode-syntax-table) ; treat . as a symbol
+    (modify-syntax-entry ?\_ ".  " q-mode-syntax-table) ; treat _ as punctuation
     (modify-syntax-entry ?\\ ".  " q-mode-syntax-table) ; treat \ as punctuation
     (modify-syntax-entry ?\$ ".  " q-mode-syntax-table) ; treat $ as punctuation
     (modify-syntax-entry ?\% ".  " q-mode-syntax-table) ; treat % as punctuation
@@ -589,7 +606,7 @@ This marks the PROCESS with a MESSAGE, at a particular time point."
     (modify-syntax-entry ?\< ".  " q-mode-syntax-table) ; treat < as punctuation
     (modify-syntax-entry ?\> ".  " q-mode-syntax-table) ; treat > as punctuation
     (modify-syntax-entry ?\| ".  " q-mode-syntax-table) ; treat | as punctuation
-    (modify-syntax-entry ?\` "'  " q-mode-syntax-table) ; treat ` as expression prefix
+    (modify-syntax-entry ?\` "_  " q-mode-syntax-table) ; treat ` as symbol
     q-mode-syntax-table)
   "Syntax table for `q-mode'.")
 

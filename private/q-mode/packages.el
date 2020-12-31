@@ -77,7 +77,7 @@ Each entry is either:
       (spacemacs/set-leader-keys-for-major-mode 'q-mode
         "i" 'q-send-string-i
         "," 'q-eval-line
-        "RET" 'q-eval-line-and-advance
+        "RET" 'q-eval-line-and-step
         "s" 'q-eval-symbol-at-point
         "f" 'q-eval-function
         "r" 'q-eval-region

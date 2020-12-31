@@ -1,0 +1,6 @@
+This is spacemacs layer providing [[https://github.com/psaris/q-mode][Nick Psaris' emacs q-mode]] and major-mode key bindings accessible via `SPC m`/`,` key. `q-mode` is a major-mode for [[https://en.wikipedia.org/wiki/Q_(programming_language_from_Kx_Systems][Q programming language]].
+
+* Installation
+
+1. =git clone https://github.com/danielkrizian/q-mode.git ~/.emacs.d/private/q-mode=
+2. Add =q-mode= to your =dotspacemacs-configuration-layers= list in your =.spacemacs= file.
