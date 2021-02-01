@@ -608,7 +608,8 @@ you should place your code here."
   ;; -------------- tramp ----------------------------------------------------------
   (setq tramp-default-method "ssh")
   ;; -------------- projectile -------------------------------------------------------
-  (setq projectile-project-search-path '("~/proj/"))
+  (setq projectile-project-search-path '("~/proj/")
+        compilation-always-kill t)      ; auto-answer yes to "A compilation process is running; kill it? (yes or no)" when SPC pT
 
   (defun projectile-compile--double-prefix-means-run-comint (func &optional args) ; https://github.com/bbatsov/projectile/issues/891
     "allow running compilation interactively when multiple prefixes are given.

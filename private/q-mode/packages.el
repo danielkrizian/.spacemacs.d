@@ -66,6 +66,7 @@ Each entry is either:
     :config
     (progn
       (add-hook 'q-mode-hook (lambda () (setq comment-column 51)))
+      (add-hook 'q-mode-hook (lambda () (setq fill-column nil)))
       (defun q-send-string-i (string) (interactive "sSend string:") (require'q-mode) (q-send-string string))
       (defun q-send-string-time (string)    ;; see add-function and advice-add; https://emacs.stackexchange.com/questions/12704/swap-default-behavior-of-command-with-c-u-behavior
         "prepends string with '\t:1000' and q-send-string.
