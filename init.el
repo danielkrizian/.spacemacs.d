@@ -94,9 +94,15 @@ This function should only modify configuration layer settings."
      ;; org-fragment-auto-preview
      ;; org-reverse-datetree
      command-log
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
+     (shell :variables
+            shell-default-shell 'eshell
+         ;; shell-enable-smart-eshell t
+            shell-default-term-shell "/bin/bash"
+            multi-term-program "/bin/bash"
+            close-window-with-terminal t
+         ;; shell-default-full-span nil
+            shell-default-height 30
+            shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
      (auto-completion :variables
@@ -559,6 +565,7 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+  (setq split-width-threshold nil)      ; don't split horizontally; so that e.g. `q-qcon' works
   (global-hl-line-mode t)               ; highlight line at cursor
   (global-visual-line-mode t)           ; word wrap; jk navigate by visual line, not logical line
   (setq restart-emacs-restore-frames t
